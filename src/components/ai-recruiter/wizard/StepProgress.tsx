@@ -8,7 +8,7 @@ interface StepProgressProps {
 
 const STEPS = [
   { key: "jd" as Phase, label: "JD" },
-  { key: "survey" as Phase, label: "설문" },
+  { key: "survey" as Phase, label: "컨텍스트" },
   { key: "animating" as Phase, label: "AI 매칭" },
   { key: "lead" as Phase, label: "결과 확인" },
 ];
@@ -23,16 +23,9 @@ export default function StepProgress({ phase }: StepProgressProps) {
   if (phase === "result") return null;
 
   const currentIdx = phaseIndex(phase);
-  // Map phases to step slots (result has no dot)
-  const stepPhaseOrder: Phase[] = ["jd", "survey", "animating", "lead"];
-  const currentStepSlot = stepPhaseOrder.indexOf(phase);
-  const stepNumber = currentStepSlot + 1;
 
   return (
-    <div className="flex flex-col items-center gap-3 pb-8 pt-6">
-      <p className="text-13 font-medium text-[var(--color-fg-subtle)]">
-        Step {stepNumber > 0 ? stepNumber : 1} of 4
-      </p>
+    <div className="flex flex-col items-center gap-3 pb-8 pt-14 tablet:pt-20">
       <div className="flex items-center gap-3">
         {STEPS.map((step, i) => {
           const stepPhaseIdx = phaseIndex(step.key);

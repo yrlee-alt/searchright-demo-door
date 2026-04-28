@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import AIRecruiterFlow from "./AIRecruiterFlow";
-import SiteHeader from "@/components/SiteHeader";
 
 export const metadata: Metadata = {
   title: "AI 인재 검색 | SearchRight",
@@ -22,9 +21,8 @@ export default async function AIRecruiterPage({ searchParams }: PageProps) {
   if (!query) {
     return (
       <>
-        <SiteHeader variant="transparent" />
         <div
-          className="flex min-h-[calc(100vh-56px)] flex-col items-center justify-center gap-7 px-4 text-center"
+          className="flex min-h-screen flex-col items-center justify-center gap-7 px-4 text-center"
           style={{
             background:
               "radial-gradient(60% 50% at 50% 0%, #E8F1FF 0%, #F5F5F7 60%, #F5F5F7 100%)",

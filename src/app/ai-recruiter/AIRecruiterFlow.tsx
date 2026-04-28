@@ -11,14 +11,12 @@ import SurveyStep from "@/components/ai-recruiter/wizard/SurveyStep";
 import LeadCaptureStep from "@/components/ai-recruiter/wizard/LeadCaptureStep";
 import ResultStep from "@/components/ai-recruiter/wizard/ResultStep";
 import TerminalAnimation from "@/components/ai-recruiter/animations/TerminalAnimation";
-import SiteHeader from "@/components/SiteHeader";
 
 export default function AIRecruiterFlow() {
   const path = usePathname();
   const searchParams = useSearchParams();
   const { phase, query, variant, setQuery, setVariant, setCandidateCount, goTo } = useWizardStore();
 
-  // Initialize from URL params on mount
   useEffect(() => {
     const rawQuery = searchParams.get("q") ?? "";
     const trimmed = rawQuery.trim();
@@ -43,32 +41,43 @@ export default function AIRecruiterFlow() {
 
   return (
     <>
-      <SiteHeader variant="transparent" />
       <div
-        className="min-h-screen"
+        className="relative min-h-screen overflow-hidden"
         style={{
           background:
             "radial-gradient(60% 50% at 50% 0%, #E8F1FF 0%, #F5F5F7 60%, #F5F5F7 100%)",
         }}
       >
-        {/* Step progress indicator (hidden on result) */}
-        <StepProgress phase={phase} />
+        {/* Decorative blobs — same vocabulary as home hero */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-32 -right-24 h-[420px] w-[420px] rounded-full opacity-40 blur-3xl"
+          style={{
+            background:
+              "radial-gradient(circle at 30% 30%, rgba(0,113,227,0.32), rgba(56,189,248,0) 70%)",
+            animation: "sr-blob 18s ease-in-out infinite",
+          }}
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -bottom-40 -left-24 h-[420px] w-[420px] rounded-full opacity-30 blur-3xl"
+          style={{
+            background:
+              "radial-gradient(circle at 70% 70%, rgba(56,189,248,0.32), rgba(0,113,227,0) 70%)",
+            animation: "sr-blob 22s ease-in-out infinite reverse",
+          }}
+        />
 
-        {/* Step content */}
-        <div className="pb-20">
-          {phase === "jd" && <JDLinkStep />}
+        <div className="relative flex min-h-screen flex-col">
+          <StepProgress phase={phase} />
 
-          {phase === "survey" && <SurveyStep />}
-
-          {phase === "animating" && (
-            <div>
-              <TerminalAnimation {...animSharedProps} />
-            </div>
-          )}
-
-          {phase === "lead" && <LeadCaptureStep />}
-
-          {phase === "result" && <ResultStep />}
+          <div className="flex flex-1 flex-col justify-center pb-32 tablet:pb-40">
+            {phase === "jd" && <JDLinkStep />}
+            {phase === "survey" && <SurveyStep />}
+            {phase === "animating" && <TerminalAnimation {...animSharedProps} />}
+            {phase === "lead" && <LeadCaptureStep />}
+            {phase === "result" && <ResultStep />}
+          </div>
         </div>
       </div>
     </>
