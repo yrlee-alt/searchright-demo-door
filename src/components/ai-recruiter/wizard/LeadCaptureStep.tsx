@@ -11,11 +11,23 @@ import { candidateCountFromQuery } from "../lib/candidateCount";
 import { SURVEY_QUESTIONS } from "./surveyQuestions";
 import { useWizardStore } from "./wizardStore";
 
-function validateEmail(email: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+function validateKoreanPhone(value: string): boolean {
+  // Accept 010-XXXX-XXXX, 010 XXXX XXXX, or 010XXXXXXXX (and 011/016-019)
+  const digits = value.replace(/[^0-9]/g, "");
+  return /^01[016789]\d{7,8}$/.test(digits);
 }
 
-type FieldKey = "personName" | "email" | "companyName";
+function formatKoreanPhone(value: string): string {
+  const digits = value.replace(/[^0-9]/g, "").slice(0, 11);
+  if (digits.length < 4) return digits;
+  if (digits.length < 8) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+  if (digits.length === 10) {
+    return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+  }
+  return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`;
+}
+
+type FieldKey = "personName" | "phone" | "companyName";
 
 function getLabelOf(
   questionKey: keyof ReturnType<typeof useWizardStore.getState>["survey"],
@@ -35,12 +47,12 @@ export default function LeadCaptureStep() {
 
   const [touched, setTouched] = useState<Record<FieldKey, boolean>>({
     personName: false,
-    email: false,
+    phone: false,
     companyName: false,
   });
   const [errors, setErrors] = useState<Record<FieldKey, string>>({
     personName: "",
-    email: "",
+    phone: "",
     companyName: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -50,9 +62,11 @@ export default function LeadCaptureStep() {
     switch (field) {
       case "personName":
         return value.trim() === "" ? "성함을 입력해주세요" : "";
-      case "email":
-        if (!value.trim()) return "이메일을 입력해주세요";
-        return validateEmail(value) ? "" : "올바른 이메일 형식이 아닙니다";
+      case "phone":
+        if (!value.trim()) return "전화번호를 입력해주세요";
+        return validateKoreanPhone(value)
+          ? ""
+          : "올바른 전화번호 형식이 아닙니다 (예: 010-1234-5678)";
       case "companyName":
         return value.trim() === "" ? "회사명을 입력해주세요" : "";
     }
@@ -60,7 +74,8 @@ export default function LeadCaptureStep() {
 
   function handleChange(field: FieldKey) {
     return (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value;
+      let value = e.target.value;
+      if (field === "phone") value = formatKoreanPhone(value);
       setContact({ [field]: value });
       if (touched[field]) {
         setErrors((prev) => ({ ...prev, [field]: validateField(field, value) }));
@@ -84,19 +99,19 @@ export default function LeadCaptureStep() {
 
   const isFormValid =
     !validateField("personName", contact.personName) &&
-    !validateField("email", contact.email) &&
+    !validateField("phone", contact.phone) &&
     !validateField("companyName", contact.companyName);
 
   async function handleSubmit() {
     const allTouched: Record<FieldKey, boolean> = {
       personName: true,
-      email: true,
+      phone: true,
       companyName: true,
     };
     setTouched(allTouched);
     const newErrors: Record<FieldKey, string> = {
       personName: validateField("personName", contact.personName),
-      email: validateField("email", contact.email),
+      phone: validateField("phone", contact.phone),
       companyName: validateField("companyName", contact.companyName),
     };
     setErrors(newErrors);
@@ -116,13 +131,13 @@ export default function LeadCaptureStep() {
 
       const res = await api.user.postRequestList({
         personName: contact.personName,
-        email: contact.email,
+        email: "",
         text: structuredText,
-        contactNumber: "",
-        source: "ai-recruiter",
+        contactNumber: contact.phone,
+        source: "ai-recruiter-phone",
       });
 
-      trackEvent("generate_lead", path, { inquiry_type: "ai_recruiter", content_name: "ai_recruiter" });
+      trackEvent("generate_lead", path, { inquiry_type: "ai_recruiter_phone", content_name: "ai_recruiter_phone" });
 
       const leadEventId = crypto.randomUUID();
       window.fbq?.("track", "Lead", {}, { eventID: leadEventId });
@@ -136,8 +151,8 @@ export default function LeadCaptureStep() {
         event_name: "Lead",
         event_id: leadEventId,
         event_source_url: window.location.href,
-        user_data: { em: contact.email, fn, ln, external_id: externalId },
-        custom_data: { content_name: "ai_recruiter" },
+        user_data: { ph: contact.phone.replace(/[^0-9]/g, ""), fn, ln, external_id: externalId },
+        custom_data: { content_name: "ai_recruiter_phone" },
       });
 
       const count = candidateCountFromQuery(query);
@@ -244,38 +259,40 @@ export default function LeadCaptureStep() {
             )}
           </div>
 
-          {/* 이메일 */}
+          {/* 전화번호 */}
           <div>
             <label
               className="mb-2 block text-14 font-medium"
               style={{ color: "var(--color-fg)" }}
             >
-              이메일 <span style={{ color: "var(--color-danger)" }}>*</span>
+              전화번호 <span style={{ color: "var(--color-danger)" }}>*</span>
             </label>
             <input
-              type="email"
-              placeholder="hong@company.com"
-              value={contact.email}
-              onChange={handleChange("email")}
-              onFocus={() => handleFocus("이메일")}
-              onBlur={handleBlur("email")}
+              type="tel"
+              inputMode="numeric"
+              autoComplete="tel"
+              placeholder="010-1234-5678"
+              value={contact.phone}
+              onChange={handleChange("phone")}
+              onFocus={() => handleFocus("전화번호")}
+              onBlur={handleBlur("phone")}
               style={inputBase}
               onFocusCapture={(e) => {
-                Object.assign(e.currentTarget.style, inputFocusStyle("email"));
+                Object.assign(e.currentTarget.style, inputFocusStyle("phone"));
               }}
               onBlurCapture={(e) => {
                 Object.assign(e.currentTarget.style, {
                   ...inputBase,
-                  borderColor: touched.email && errors.email
+                  borderColor: touched.phone && errors.phone
                     ? "var(--color-danger)"
                     : "var(--color-border)",
                   boxShadow: "none",
                 });
               }}
             />
-            {touched.email && errors.email && (
+            {touched.phone && errors.phone && (
               <p className="mt-1.5 text-13" style={{ color: "var(--color-danger)" }}>
-                {errors.email}
+                {errors.phone}
               </p>
             )}
           </div>

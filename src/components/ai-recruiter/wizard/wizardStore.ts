@@ -18,7 +18,7 @@ interface WizardState {
   jdSkipped: boolean;
   survey: SurveyAnswers;
   surveyIndex: number; // 0..3
-  contact: { personName: string; email: string; companyName: string };
+  contact: { personName: string; email: string; phone: string; companyName: string };
   candidateCount: number;
 
   setQuery: (q: string) => void;
@@ -42,7 +42,7 @@ export const useWizardStore = create<WizardState>((set) => ({
   jdSkipped: false,
   survey: {},
   surveyIndex: 0,
-  contact: { personName: "", email: "", companyName: "" },
+  contact: { personName: "", email: "", phone: "", companyName: "" },
   candidateCount: 0,
   setQuery: (q) => set({ query: q }),
   setVariant: (v) => set({ variant: v }),
@@ -61,7 +61,7 @@ export const useWizardStore = create<WizardState>((set) => ({
       jdSkipped: false,
       survey: {},
       surveyIndex: 0,
-      contact: { personName: "", email: "", companyName: "" },
+      contact: { personName: "", email: "", phone: "", companyName: "" },
       candidateCount: 0,
     }),
 }));
