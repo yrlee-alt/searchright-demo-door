@@ -72,7 +72,7 @@ export default async function AIRecruiterPage({ searchParams }: PageProps) {
             </p>
           </div>
           <Link
-            href="/"
+            href="https://www.searchright.net/"
             className="inline-flex items-center gap-2 font-semibold text-white transition-all duration-300"
             style={{
               borderRadius: "9999px",
