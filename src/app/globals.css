@@ -1,0 +1,140 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  /* Custom colors */
+  --color-primary: #0ea5e9;
+
+  /* Apple-inspired light tokens */
+  --color-bg: #F5F5F7;
+  --color-surface: #FFFFFF;
+  --color-surface-2: #FBFBFD;
+  --color-fg: #1D1D1F;
+  --color-fg-muted: #6E6E73;
+  --color-fg-subtle: #86868B;
+  --color-border: #D2D2D7;
+  --color-border-soft: #E5E5E7;
+  --color-accent: #0071E3;
+  --color-accent-pressed: #0058B0;
+  --color-accent-soft: #E8F1FF;
+  --color-accent-tint: #F0F6FF;
+  --color-success: #30D158;
+  --color-danger: #FF3B30;
+
+  /* Brand gradient */
+  --gradient-brand: linear-gradient(135deg, #0071E3 0%, #38BDF8 100%);
+  --gradient-hero: radial-gradient(60% 50% at 50% 0%, #E8F1FF 0%, #F5F5F7 60%, #F5F5F7 100%);
+
+  /* Radii */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 28px;
+
+  /* Easing */
+  --ease-apple: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Custom font sizes */
+  --font-size-11: 11px;
+  --font-size-12: 12px;
+  --font-size-13: 13px;
+  --font-size-14: 14px;
+  --font-size-15: 15px;
+  --font-size-16: 16px;
+  --font-size-18: 18px;
+  --font-size-20: 20px;
+  --font-size-24: 24px;
+  --font-size-28: 28px;
+  --font-size-30: 30px;
+  --font-size-36: 36px;
+  --font-size-40: 40px;
+  --font-size-44: 44px;
+  --font-size-56: 56px;
+  --font-size-80: 80px;
+  --font-size-96: 96px;
+
+  /* Custom breakpoints */
+  --breakpoint-tablet: 768px;
+  --breakpoint-desktop: 1024px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #ffffff;
+    --foreground: #171717;
+  }
+}
+
+html, body {
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "SF Pro Display", "Inter", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Subtle shared animations */
+@keyframes sr-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes sr-blob {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(2%, -2%) scale(1.05);
+  }
+  66% {
+    transform: translate(-2%, 2%) scale(0.97);
+  }
+}
+
+@keyframes sr-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.sr-fade-up {
+  animation: sr-fade-up 720ms var(--ease-apple, cubic-bezier(0.4, 0, 0.2, 1)) both;
+}
+.sr-fade-up-delay-1 { animation-delay: 80ms; }
+.sr-fade-up-delay-2 { animation-delay: 160ms; }
+.sr-fade-up-delay-3 { animation-delay: 240ms; }
+.sr-fade-up-delay-4 { animation-delay: 320ms; }
+
+.sr-marquee-track {
+  animation: sr-marquee 32s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sr-fade-up,
+  .sr-marquee-track {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Selection */
+::selection {
+  background: var(--color-accent-soft);
+  color: var(--color-accent-pressed);
+}
