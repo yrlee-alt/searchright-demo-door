@@ -118,7 +118,7 @@ export default function SurveyStep() {
         >
           {question.title}
         </h2>
-        {question.subtitle && (
+        {"subtitle" in question && question.subtitle && (
           <p className="mt-3 text-16 text-[var(--color-fg-muted)]">{question.subtitle}</p>
         )}
       </div>
